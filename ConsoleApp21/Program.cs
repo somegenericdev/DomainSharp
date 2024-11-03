@@ -1,33 +1,28 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Collections.Immutable;
-using System.Collections.ObjectModel;
-using System.Text;
-using System.Text.RegularExpressions;
-using CliWrap;
+﻿using System.Collections.Immutable;
+using CommandLine;
+using ConsoleApp21;
 using DnsClient;
 using Polly;
 using Polly.Extensions.Http;
 
-// List<string> words = File.ReadAllText("/home/ubuntu/RiderProjects/ConsoleApp21/ConsoleApp21/commands.txt").Split("\n").ToList();
-List<string> words = GetWords();
-var tlds = GetTLDs();
-var domains = words.SelectMany(w => GenerateDomains(w, tlds)).ToList();
-Console.WriteLine(domains.Count());
-var completedQueries = domains.Select(domain => { return CheckAvailability(domain); }).ToList();
+
+Parser.Default.ParseArguments<CommandLineOptions>(args)
+    .WithParsed<CommandLineOptions>(o =>
+    {
+        var inputPath = o.InputPath;
+        var outputPath = o.OutputPath;
+        List<string> words = GetWords(inputPath);
+        var tlds = GetTLDs();
+        var domains = words.SelectMany(w => GenerateDomains(w, tlds)).ToList();
+        Console.WriteLine(domains.Count());
+        var completedQueries = domains.Select(domain => CheckAvailability(domain)).ToList();
+        File.WriteAllText(outputPath, completedQueries.Where(x => x.result.HasError).Select(x => x.domain).Implode("\n"));
+    });
 
 
-File.WriteAllText("/home/ubuntu/RiderProjects/ConsoleApp21/ConsoleApp21/res.txt",
-    string.Join("\n", completedQueries.Where(x => x.result.HasError).Select(x => x.domain).ToArray()));
-
-
-List<string> GetWords()
+List<string> GetWords(string path)
 {
-    var wordsRaw = File.ReadAllText("/home/ubuntu/RiderProjects/ConsoleApp21/ConsoleApp21/360k.txt");
-
-    // var rgx = new Regex("(?:[\\d]+[\\s]+)([a-z\\-]+)");
-    // var matches= rgx.Matches(wordsRaw);
-    // return matches.Select(x => x.Groups[1].Value).ToList();
+    var wordsRaw = File.ReadAllText(path);
     return wordsRaw.Split("\n").ToList();
 }
 
@@ -78,15 +73,15 @@ List<string> GenerateDomainsRec(string word, ImmutableList<string> TLDs, int len
 }
 
 
-(IDnsQueryResponse result, string domain) CheckAvailability(string _domain)
+(IDnsQueryResponse result, string domain) CheckAvailability(string domain)
 {
     var policy = Policy<IDnsQueryResponse>.Handle<DnsResponseException>()
         .WaitAndRetryForever((_) => TimeSpan.FromSeconds(1));
     var result = policy.Execute( () =>
     {
         var lookup = new LookupClient();
-        var _result = lookup.Query(_domain, QueryType.NS);
+        var _result = lookup.Query(domain, QueryType.NS);
         return _result;
     });
-    return (result, _domain);
+    return (result, domain);
 }
