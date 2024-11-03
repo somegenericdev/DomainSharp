@@ -7,7 +7,7 @@ using Polly.Extensions.Http;
 
 
 Parser.Default.ParseArguments<CommandLineOptions>(args)
-    .WithParsed<CommandLineOptions>(o =>
+    .WithParsed(o =>
     {
         var inputPath = o.InputPath;
         var outputPath = o.OutputPath;
@@ -41,10 +41,12 @@ List<string> GetTLDs()
     });
 
     using var reader = new StreamReader(response.Content.ReadAsStream());
-    var splitted = reader.ReadToEnd();
-    return splitted.Split("\n").Where(x => !string.IsNullOrEmpty(x)).Where(x => x[0] != '#').Where(x => x.Length < 5)
-        .Select(x => x.ToLower())
-        .ToList();
+    var responseStr = reader.ReadToEnd();
+    return responseStr.Split("\n").Where(x => !string.IsNullOrEmpty(x))
+                                  .Where(x => x[0] != '#')
+                                  .Where(x => x.Length < 5)
+                                  .Select(x => x.ToLower())
+                                  .ToList();
 }
 
 
