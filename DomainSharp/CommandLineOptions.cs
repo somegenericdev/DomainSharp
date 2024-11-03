@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace DomainAvailabilityChecker;
+namespace DomainSharp;
 
 public class CommandLineOptions
 {

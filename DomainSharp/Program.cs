@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using CommandLine;
-using DomainAvailabilityChecker;
+using DomainSharp;
 using DnsClient;
 using Polly;
 using Polly.Extensions.Http;

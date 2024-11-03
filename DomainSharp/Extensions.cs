@@ -1,4 +1,4 @@
-namespace DomainAvailabilityChecker;
+namespace DomainSharp;
 
 public static class Extensions
 {
