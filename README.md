@@ -10,3 +10,8 @@ Then, it filters the computed domains that are available for registration via an
 The tool implements transient error handling through [Polly](https://github.com/App-vNext/Polly), which makes it suitable for flaky internet connections and long runs with hundreds of thousands of words.
 
 # Usage
+
+```
+head -n50 <(curl -s https://raw.githubusercontent.com/somegenericdev/DomainSharp/refs/heads/main/DomainSharp/words.txt) > words.txt
+domainsharp -i words.txt -o output.txt
+```
