@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using CommandLine;
-using ConsoleApp21;
+using DomainAvailabilityChecker;
 using DnsClient;
 using Polly;
 using Polly.Extensions.Http;
@@ -14,7 +14,6 @@ Parser.Default.ParseArguments<CommandLineOptions>(args)
         List<string> words = GetWords(inputPath);
         var tlds = GetTLDs();
         var domains = words.SelectMany(w => GenerateDomains(w, tlds)).ToList();
-        Console.WriteLine(domains.Count());
         var completedQueries = domains.Select(domain => CheckAvailability(domain)).ToList();
         File.WriteAllText(outputPath, completedQueries.Where(x => x.result.HasError).Select(x => x.domain).Implode("\n"));
     });

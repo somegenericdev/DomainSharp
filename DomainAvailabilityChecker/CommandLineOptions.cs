@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace ConsoleApp21;
+namespace DomainAvailabilityChecker;
 
 public class CommandLineOptions
 {

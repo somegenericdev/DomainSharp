@@ -1,4 +1,4 @@
-namespace ConsoleApp21;
+namespace DomainAvailabilityChecker;
 
 public static class Extensions
 {
